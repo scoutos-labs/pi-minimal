@@ -3,7 +3,7 @@
 > Minimal Pi agent setup. One command. No bloat.
 
 ```
-npx @scoutos-labs/pi-minimal
+npx github:scoutos-labs/pi-minimal
 ```
 
 Installs the [Pi coding agent](https://shittycodingagent.ai/) with exactly three extensions:
@@ -22,22 +22,22 @@ Nothing else. No themes, no UI widgets, no frameworks.
 
 ```bash
 # Interactive install (recommended first time)
-npx @scoutos-labs/pi-minimal
+npx github:scoutos-labs/pi-minimal
 
 # Non-interactive / CI
-npx @scoutos-labs/pi-minimal --yes
+npx github:scoutos-labs/pi-minimal --yes
 
 # Install into current project only
-npx @scoutos-labs/pi-minimal --local
+npx github:scoutos-labs/pi-minimal --local
 
 # Check what's installed
-npx @scoutos-labs/pi-minimal status
+npx github:scoutos-labs/pi-minimal status
 
 # Diagnose problems
-npx @scoutos-labs/pi-minimal doctor
+npx github:scoutos-labs/pi-minimal doctor
 
 # Update everything
-npx @scoutos-labs/pi-minimal update
+npx github:scoutos-labs/pi-minimal update
 ```
 
 ---
