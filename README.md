@@ -6,15 +6,16 @@
 npx github:scoutos-labs/pi-minimal
 ```
 
-Installs the [Pi coding agent](https://shittycodingagent.ai/) with exactly three extensions:
+Installs the [Pi coding agent](https://shittycodingagent.ai/) with exactly two extensions:
 
 | Extension | What it does |
 |-----------|-------------|
-| `pi-subagents` | Spawn parallel isolated agents for independent workstreams |
 | `pi-memory-md` | Persist facts, goals, and context across sessions as Markdown |
 | `pi-autoresearch` | Autonomous research + experiment loop: try → benchmark → keep → repeat |
 
-Nothing else. No themes, no UI widgets, no frameworks.
+Nothing else. No subagents, no themes, no UI widgets, no frameworks.
+
+A welcome note is written to `~/.pi/agent/notes/pi-minimal-welcome.md` on first install explaining how to use each extension.
 
 ---
 
@@ -70,7 +71,7 @@ Or run `pi` and type `/login` to sign in with a Claude Pro/Max, ChatGPT Plus/Pro
 
 ## Why not LazyPi?
 
-[LazyPi](https://github.com/robzolkos/lazypi) is great but installs 20+ packages including themes, UI widgets, and frameworks. pi-minimal is for agents and developers who want the productive core and nothing else.
+[LazyPi](https://github.com/robzolkos/lazypi) is great but installs 20+ packages including themes, UI widgets, and frameworks. pi-minimal is for agents and developers who want just enough — memory so Pi remembers context between sessions, and autoresearch for autonomous deep-dives — nothing else.
 
 ---
 

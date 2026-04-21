@@ -19,12 +19,6 @@ import {
 // ---------------------------------------------------------------------------
 const PACKAGES = [
   {
-    id: "subagents",
-    source: "npm:pi-subagents",
-    description: "Parallel isolated sub-agents",
-    hint: "Spawn parallel agents for independent workstreams.",
-  },
-  {
     id: "memory",
     source: "npm:pi-memory-md",
     description: "Markdown-backed persistent memory",
@@ -36,17 +30,6 @@ const PACKAGES = [
     description: "Autonomous research + experiment loop",
     hint: "Long-running autonomous loop: try → benchmark → keep → repeat.",
   },
-];
-
-// Built-in subagent names that ship with hardcoded models.
-// We blank them out so they inherit the user's active provider instead.
-const SUBAGENT_BUILTIN_MODELS = [
-  "context-builder",
-  "planner",
-  "researcher",
-  "reviewer",
-  "scout",
-  "worker",
 ];
 
 // ---------------------------------------------------------------------------
@@ -81,7 +64,7 @@ function renderLogo() {
     "",
     "        " + B("  _ ")  + "     " + D("minimal"),
     "        " + B(" |_)") + "  " + D("·"),
-    "        " + B(" |  ") + "  " + D("subagents + memory + autoresearch"),
+    "        " + B(" |  ") + "  " + D("memory + autoresearch"),
     "",
   ].join("\n");
 }
@@ -112,7 +95,7 @@ ${bold("Usage:")}
   npx @scoutos-labs/pi-minimal [command] [options]
 
 ${bold("Commands:")}
-  install   Install Pi + subagents + memory + autoresearch (default)
+  install   Install Pi + memory + autoresearch (default)
   status    Show which packages are installed
   doctor    Check environment health
   update    Re-install any missing packages and run \`pi update\`
@@ -123,7 +106,6 @@ ${bold("Options:")}
   -h, --help    Show this help
 
 ${bold("What gets installed:")}
-  pi-subagents     Parallel isolated sub-agents
   pi-memory-md     Markdown-backed persistent memory
   pi-autoresearch  Autonomous research + experiment loop
 
@@ -173,14 +155,6 @@ function writeSettings(local, mutate) {
   mkdirSync(dirname(path), { recursive: true });
   if (existsSync(path)) copyFileSync(path, backupPath(path));
   writeFileSync(path, JSON.stringify(existing, null, 2) + "\n", "utf8");
-}
-
-function applySubagentOverrides(local) {
-  writeSettings(local, (s) => {
-    const overrides = Object.fromEntries(SUBAGENT_BUILTIN_MODELS.map((n) => [n, { model: "" }]));
-    s.subagents = { ...(s.subagents ?? {}), agentOverrides: { ...(s.subagents?.agentOverrides ?? {}), ...overrides } };
-    return true;
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -290,10 +264,6 @@ async function cmdInstall(flags) {
       failed.push(pkg);
       if (interactive) log.error(`Failed to install ${pkg.id}`);
       else console.error(red(`  ✗ failed: ${pkg.id}`));
-    } else if (pkg.id === "subagents") {
-      // Blank out hardcoded models so subagents inherit the user's active provider
-      applySubagentOverrides(flags.local);
-      if (interactive) log.info("Cleared hardcoded model names from pi-subagents (will use your active provider)");
     }
   }
 
@@ -304,9 +274,77 @@ async function cmdInstall(flags) {
     return 1;
   }
 
+  const noteWritten = writeWelcomeNote(flags.local);
+  if (noteWritten && interactive) log.info("Welcome note written → ~/.pi/agent/notes/pi-minimal-welcome.md");
   printCheatsheet(interactive);
   printNextSteps(detectAuth(), toInstall.length, interactive);
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Welcome note
+// ---------------------------------------------------------------------------
+function writeWelcomeNote(local) {
+  const notesDir = local
+    ? join(cwd(), ".pi", "notes")
+    : join(homedir(), ".pi", "agent", "notes");
+  const notePath = join(notesDir, "pi-minimal-welcome.md");
+  if (existsSync(notePath)) return false; // only write once
+  mkdirSync(notesDir, { recursive: true });
+
+  const content = `# Welcome to pi-minimal
+
+Pi is running with two extensions: **memory** and **autoresearch**.
+
+---
+
+## Memory (pi-memory-md)
+
+Persist facts, goals, and context across sessions as Markdown files.
+
+**How to use:**
+- Tell Pi to remember something: *"Remember that our database is PostgreSQL 16 on port 5433"*
+- Pi will store it in \`~/.pi/agent/memory/\` as a \`.md\` file
+- On future sessions Pi will load relevant memories automatically
+- You can also ask: *"What do you remember about this project?"*
+- To forget something: *"Forget the database note"*
+
+---
+
+## Autoresearch (pi-autoresearch)
+
+An autonomous research + experiment loop. Pi will iteratively try approaches,
+benchmark them, keep the best result, and repeat — without you driving each step.
+
+**How to use:**
+- Give Pi a research goal: *"Research the fastest way to parse 1M JSON records in Node.js"*
+- Or an experiment goal: *"Find the optimal chunk size for embedding this codebase"*
+- Pi will run the loop autonomously, reporting progress and final findings
+- You can set a budget: *"Research this for up to 10 iterations"*
+
+---
+
+## Multi-provider
+
+Pi works with any LLM. Set your key before running \`pi\`:
+
+\`\`\`
+export ANTHROPIC_API_KEY=...   # Claude
+export OPENAI_API_KEY=...      # GPT-4o
+export OPENROUTER_API_KEY=...  # Any model via OpenRouter
+export GROQ_API_KEY=...        # Fast/cheap
+export GOOGLE_API_KEY=...      # Gemini
+\`\`\`
+
+Or run \`pi\` and type \`/login\` to sign in interactively.
+
+---
+
+Run \`npx github:scoutos-labs/pi-minimal status\` to check what's installed.
+`;
+
+  writeFileSync(notePath, content, "utf8");
+  return true;
 }
 
 function printCheatsheet(interactive) {
